@@ -18,8 +18,8 @@ defmodule IrisEx.Application do
 
   defmacro __using__(opts) do
     bot_modules = Keyword.get(opts, :bots, [])
-    ws_url = Keyword.get(opts, :ws_url, nil)
-    http_url = Keyword.get(opts, :http_url, nil)
+    ws_url = Keyword.get(opts, :ws_url, "")
+    http_url = Keyword.get(opts, :http_url, "")
 
     quote do
       use Application

@@ -34,9 +34,9 @@ defmodule IrisEx.Client do
           },
           message: %{
             id: get_in(parsed, ["json", "id"]),
-            type: get_in(parsed, ["json", "id"]),
-            content: get_in(parsed, ["json", "id"]),
-            attachment: get_in(parsed, ["json", "id"]),
+            type: get_in(parsed, ["json", "type"]),
+            content: get_in(parsed, ["json", "content"]),
+            attachment: get_in(parsed, ["json", "attachment"]),
             v: v
           },
           raw: parsed["json"]
