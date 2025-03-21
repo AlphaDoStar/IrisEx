@@ -26,13 +26,8 @@ defmodule IrisEx.Application do
 
       @impl true
       def start(_type, _args) do
-        if unquote(ws_url) === "" do
-          Application.put_env(:iris_ex, :ws_url, unquote(ws_url))
-        end
-
-        if unquote(http_url) === "" do
-          Application.put_env(:iris_ex, :http_url, unquote(http_url))
-        end
+        Application.put_env(:iris_ex, :ws_url, unquote(ws_url))
+        Application.put_env(:iris_ex, :http_url, unquote(http_url))
 
         {:ok, _} = Application.ensure_all_started(:iris_ex)
 
