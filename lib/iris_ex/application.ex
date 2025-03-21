@@ -30,7 +30,7 @@ defmodule IrisEx.Application do
           Application.put_env(:iris_ex, :ws_url, unquote(ws_url))
         end
 
-        if unquote(http_url) != "" do
+        if unquote(http_url) !== "" do
           Application.put_env(:iris_ex, :http_url, unquote(http_url))
         end
 
