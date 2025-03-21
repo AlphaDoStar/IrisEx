@@ -8,7 +8,7 @@ defmodule IrisEx.Application do
   def start(_type, _args) do
     children = [
       {Task.Supervisor, name: IrisEx.TaskSupervisor},
-      IrisEx.Registry,
+      IrisEx.Bot.Registry,
       IrisEx.Client
     ]
 
