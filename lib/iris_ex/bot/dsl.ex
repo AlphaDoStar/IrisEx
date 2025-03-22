@@ -37,10 +37,13 @@ defmodule IrisEx.Bot.DSL do
 
   defmacro reply(message) do
     quote do
-      # IO.inspect(var!(chat))
-      # IO.puts(unquote(message))
-
       IrisEx.Client.send_reply(var!(chat).room.id, unquote(message))
+    end
+  end
+
+  defmacro reply_image(base64) do
+    quote do
+      IrisEx.Client.send_image(var!(chat).room.id, unquote(base64))
     end
   end
 
