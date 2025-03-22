@@ -8,8 +8,7 @@ defmodule IrisEx.Application do
   def start(_type, _args) do
     children = [
       {Task.Supervisor, name: IrisEx.TaskSupervisor},
-      IrisEx.Bot.Registry,
-      IrisEx.Client
+      IrisEx.Bot.Registry
     ]
 
     opts = [strategy: :one_for_one, name: IrisEx.Supervisor]
@@ -20,8 +19,17 @@ defmodule IrisEx.Application do
     bot_modules = Keyword.get(opts, :bots, [])
     ws_url = Keyword.get(opts, :ws_url, "")
     http_url = Keyword.get(opts, :http_url, "")
-    children = Keyword.get(opts, :children, [])
     strategy = Keyword.get(opts, :strategy, :one_for_one)
+
+    children = case Keyword.get(opts, :children, nil) do
+      nil -> []
+
+      {module, function} ->
+        apply(module, function, [])
+
+      function when is_function(function, 0) ->
+        function.()
+    end
 
     quote do
       use Application
@@ -32,22 +40,13 @@ defmodule IrisEx.Application do
         Application.put_env(:iris_ex, :http_url, unquote(http_url))
 
         {:ok, _} = Application.ensure_all_started(:iris_ex)
+        Supervisor.start_child(IrisEx.Supervisor, IrisEx.Client)
 
         unquote(bot_modules)
         |> Enum.each(&IrisEx.Bot.register/1)
 
-        children = case unquote(children) do
-          [] -> []
-
-          {module, function} ->
-            apply(module, function, [])
-
-          function when is_function(function, 0) ->
-            function.()
-        end
-
         opts = [strategy: unquote(strategy), name: __MODULE__.Supervisor]
-        Supervisor.start_link(children, opts)
+        Supervisor.start_link(unquote(children), opts)
       end
     end
   end
