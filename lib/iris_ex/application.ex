@@ -20,6 +20,8 @@ defmodule IrisEx.Application do
     bot_modules = Keyword.get(opts, :bots, [])
     ws_url = Keyword.get(opts, :ws_url, "")
     http_url = Keyword.get(opts, :http_url, "")
+    children = Keyword.get(opts, :children, [])
+    strategy = Keyword.get(opts, :strategy, :one_for_one)
 
     quote do
       use Application
@@ -34,7 +36,16 @@ defmodule IrisEx.Application do
         unquote(bot_modules)
         |> Enum.each(&IrisEx.Bot.register/1)
 
-        Supervisor.start_link([], strategy: :one_for_one)
+        children = case unquote(children) do
+          {module, function} ->
+            apply(module, function, [])
+
+          function when is_function(function, 0) ->
+            function.()
+        end
+
+        opts = [strategy: unquote(strategy), name: __MODULE__.Supervisor]
+        Supervisor.start_link(children, opts)
       end
     end
   end

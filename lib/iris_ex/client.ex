@@ -18,7 +18,7 @@ defmodule IrisEx.Client do
   def handle_frame({:text, message}, state) do
     case JSON.decode(message) do
       {:ok, parsed} ->
-        v = case JSON.decode(parsed["v"]) do
+        v = case get_in(parsed, ["json", "v"]) |> JSON.decode() do
           {:ok, parsed_v} -> parsed_v
           {:error, _reason} -> %{}
         end
@@ -35,7 +35,7 @@ defmodule IrisEx.Client do
           message: %{
             id: get_in(parsed, ["json", "id"]),
             type: get_in(parsed, ["json", "type"]),
-            content: get_in(parsed, ["json", "content"]),
+            content: get_in(parsed, ["json", "message"]),
             attachment: get_in(parsed, ["json", "attachment"]),
             v: v
           },
@@ -56,6 +56,8 @@ defmodule IrisEx.Client do
 
     {:ok, state}
   end
+  def handle_frame({:binary, _message}, state), do: {:ok, state}
+  def handle_frame(_frame, state), do: {:ok, state}
 
   def handle_disconnect(%{reason: reason}, state) do
     Logger.info("WebSocket disconnected: #{inspect(reason)}")
