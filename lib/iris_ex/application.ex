@@ -37,6 +37,8 @@ defmodule IrisEx.Application do
         |> Enum.each(&IrisEx.Bot.register/1)
 
         children = case unquote(children) do
+          [] -> []
+
           {module, function} ->
             apply(module, function, [])
 
