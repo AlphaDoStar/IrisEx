@@ -5,12 +5,10 @@ defmodule IrisEx.Bot.DSL do
 
   defmacro on(event_type, do: block) do
     quote do
-      @current_event unquote(event_type)
       def handle_event(unquote(event_type), chat) do
         var!(chat) = chat
         unquote(block)
       end
-      @current_event :unknown
     end
   end
 

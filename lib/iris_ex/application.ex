@@ -20,16 +20,7 @@ defmodule IrisEx.Application do
     ws_url = Keyword.get(opts, :ws_url, "")
     http_url = Keyword.get(opts, :http_url, "")
     strategy = Keyword.get(opts, :strategy, :one_for_one)
-
-    children = case Keyword.get(opts, :children, nil) do
-      nil -> []
-
-      {module, function} ->
-        apply(module, function, [])
-
-      function when is_function(function, 0) ->
-        function.()
-    end
+    children = Keyword.get(opts, :children, [])
 
     quote do
       use Application
