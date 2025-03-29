@@ -148,8 +148,8 @@ defmodule IrisEx.Client do
     room_id = get_in(chat, [:room, :id])
 
     type =
-      IrisEx.Client.query(query_str, [room_id])
-      |> List.first()
+      IrisEx.Client.query(query_str, [room_id])["data"]
+      |> List.first(%{})
       |> Map.get("type", "Unknown")
 
     chat |> put_in([:room, :type], type)
