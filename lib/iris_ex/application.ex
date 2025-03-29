@@ -17,6 +17,7 @@ defmodule IrisEx.Application do
 
   defmacro __using__(opts) do
     bot_modules = Keyword.get(opts, :bots, [])
+    extensions = Keyword.get(opts, :extensions, [])
     ws_url = Keyword.get(opts, :ws_url, "")
     http_url = Keyword.get(opts, :http_url, "")
     strategy = Keyword.get(opts, :strategy, :one_for_one)
@@ -27,6 +28,7 @@ defmodule IrisEx.Application do
 
       @impl true
       def start(_type, _args) do
+        Application.put_env(:iris_ex, :extensions, unquote(extensions))
         Application.put_env(:iris_ex, :ws_url, unquote(ws_url))
         Application.put_env(:iris_ex, :http_url, unquote(http_url))
 

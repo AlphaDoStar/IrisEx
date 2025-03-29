@@ -42,11 +42,13 @@ defmodule IrisEx.Client do
           raw: parsed["json"]
         }
 
+        extended_chat = extend_chat(chat)
+
         IrisEx.Bot.Registry.get_bots()
         |> Enum.each(fn bot ->
           Task.Supervisor.start_child(
             IrisEx.TaskSupervisor,
-            fn -> get_event_type(v) |> bot.handle_event(chat) end
+            fn -> get_event_type(v) |> bot.handle_event(extended_chat) end
           )
         end)
 
@@ -64,7 +66,7 @@ defmodule IrisEx.Client do
     {:ok, state}
   end
 
-  def send_reply(room_id, message) do
+  def send_text(room_id, message) do
     http_endpoint = "#{IrisEx.Config.http_url()}/reply"
 
     payload = JSON.encode!(%{
@@ -102,6 +104,21 @@ defmodule IrisEx.Client do
     end
   end
 
+  def query(query_str, bind) do
+    http_endpoint = "#{IrisEx.Config.http_url()}/query"
+    payload = JSON.encode!(%{query: query_str, bind: bind})
+    headers = [{"Content-Type", "application/json"}]
+
+    case HTTPoison.post(http_endpoint, payload, headers) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        JSON.decode!(body)["body"]
+      {:ok, response} ->
+        Logger.info("Failed to run query: #{inspect(response.body)}")
+      {:error, error} ->
+        Logger.error("Failed to send query: #{inspect(error)}")
+    end
+  end
+
   defp get_event_type(%{"origin" => origin}) do
     case origin do
       "MSG" -> :message
@@ -111,4 +128,28 @@ defmodule IrisEx.Client do
     end
   end
   defp get_event_type(_), do: :unknown
+
+  defp extend_chat(chat) do
+    Application.get_env(:iris_ex, :extensions, [])
+    |> Enum.reduce(chat, fn extension, extended_chat ->
+      case extension do
+        :room_type ->
+          extend_with_room_type(extended_chat)
+        _ ->
+          extended_chat
+      end
+    end)
+  end
+
+  defp extend_with_room_type(chat) do
+    query_str = "SELECT type FROM chat_rooms where id = ?"
+    room_id = get_in(chat, [:room, :id])
+
+    type =
+      IrisEx.Client.query(query_str, [room_id])
+      |> List.first()
+      |> Map.get("type", "Unknown")
+
+    chat |> put_in([:room, :type], type)
+  end
 end
