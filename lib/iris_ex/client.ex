@@ -111,7 +111,7 @@ defmodule IrisEx.Client do
 
     case HTTPoison.post(http_endpoint, payload, headers) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        JSON.decode!(body)["body"]
+        JSON.decode!(body)["data"]
       {:ok, response} ->
         Logger.info("Failed to run query: #{inspect(response.body)}")
       {:error, error} ->
@@ -130,8 +130,6 @@ defmodule IrisEx.Client do
   defp get_event_type(_), do: :unknown
 
   defp extend_chat(chat) do
-    IO.inspect(IrisEx.Config.extensions, pretty: true)
-
     IrisEx.Config.extensions()
     |> Enum.reduce(chat, fn extension, extended_chat ->
       case extension do
@@ -147,19 +145,11 @@ defmodule IrisEx.Client do
     query_str = "SELECT type FROM chat_rooms where id = ?"
     room_id = get_in(chat, [:room, :id])
 
-    IO.puts room_id
-
     type =
-      IrisEx.Client.query(query_str, [room_id])["data"]
+      IrisEx.Client.query(query_str, [room_id])
       |> List.first(%{})
       |> Map.get("type", "Unknown")
 
-    IO.puts type
-
-    chat = chat |> put_in([:room, :type], type)
-
-    IO.inspect(chat, pretty: true)
-
-    chat
+    chat |> put_in([:room, :type], type)
   end
 end
