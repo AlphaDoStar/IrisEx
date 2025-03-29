@@ -43,7 +43,6 @@ defmodule IrisEx.Client do
         }
 
         extended_chat = extend_chat(chat)
-        IO.inspect(chat, pretty: true)
 
         IrisEx.Bot.Registry.get_bots()
         |> Enum.each(fn bot ->
@@ -148,11 +147,19 @@ defmodule IrisEx.Client do
     query_str = "SELECT type FROM chat_rooms where id = ?"
     room_id = get_in(chat, [:room, :id])
 
+    IO.puts room_id
+
     type =
       IrisEx.Client.query(query_str, [room_id])["data"]
       |> List.first(%{})
       |> Map.get("type", "Unknown")
 
-    chat |> put_in([:room, :type], type)
+    IO.puts type
+
+    chat = chat |> put_in([:room, :type], type)
+
+    IO.inspect(chat, pretty: true)
+
+    chat
   end
 end
