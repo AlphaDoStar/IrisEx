@@ -130,7 +130,9 @@ defmodule IrisEx.Client do
   defp get_event_type(_), do: :unknown
 
   defp extend_chat(chat) do
-    Application.get_env(:iris_ex, :extensions, [])
+    IO.inspect(IrisEx.Config.extensions, pretty: true)
+
+    IrisEx.Config.extensions()
     |> Enum.reduce(chat, fn extension, extended_chat ->
       case extension do
         :room_type ->
