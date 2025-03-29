@@ -35,7 +35,7 @@ defmodule IrisEx.Bot.DSL do
 
   defmacro reply(message) do
     quote do
-      IrisEx.Client.send_text(var!(chat).room.id, unquote(message))
+      IrisEx.Client.send_text(var!(chat).room.id, unquote(message) |> String.trim())
     end
   end
 
