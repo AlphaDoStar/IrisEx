@@ -43,6 +43,7 @@ defmodule IrisEx.Client do
         }
 
         extended_chat = extend_chat(chat)
+        IO.inspect(chat, pretty: true)
 
         IrisEx.Bot.Registry.get_bots()
         |> Enum.each(fn bot ->
