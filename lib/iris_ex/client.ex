@@ -104,7 +104,7 @@ defmodule IrisEx.Client do
     end
   end
 
-  def query(query_str, bind) do
+  def query(query_str, bind \\ []) do
     http_endpoint = "#{IrisEx.Config.http_url()}/query"
     payload = JSON.encode!(%{query: query_str, bind: bind})
     headers = [{"Content-Type", "application/json"}]
