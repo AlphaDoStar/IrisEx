@@ -6,29 +6,20 @@ defmodule Example.Bot do
 
     state :default do
       match "select" do
-        message =
-          """
-          1. 딸기
-          2. 바나나
-          """
-          |> String.trim_trailing()
-
         reply("어떤 과일이 좋으신가요?")
-        reply(message)
-
+        reply("1. 딸기\n2. 바나나")
         trans :fruit_selection
       end
     end
 
     state :fruit_selection do
       match ~r/^(\d)$/ do
-        [index] = args
-        case String.to_integer(index) do
+        [choice] = args
+        case String.to_integer(choice) do
           1 -> reply("난 바나나가 더 좋은데...")
           2 -> reply("난 딸기가 더 좋은데...")
           _ -> :ok
         end
-
         trans :default
       end
     end
