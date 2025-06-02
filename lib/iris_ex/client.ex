@@ -18,37 +18,45 @@ defmodule IrisEx.Client do
   def handle_frame({:text, message}, state) do
     case JSON.decode(message) do
       {:ok, parsed} ->
-        v = case get_in(parsed, ["json", "v"]) |> JSON.decode() do
-          {:ok, parsed_v} -> parsed_v
-          {:error, _reason} -> %{}
-        end
+        attachment =
+          case get_in(parsed, ["json", "attachment"]) |> JSON.decode() do
+            {:ok, parsed_attachment} -> parsed_attachment
+            {:error, _reason} -> %{}
+          end
 
-        chat = %{
-          room: %{
-            id: get_in(parsed, ["json", "chat_id"]),
-            name: parsed["room"]
-          },
-          sender: %{
-            id: get_in(parsed, ["json", "user_id"]),
-            name: parsed["sender"]
-          },
-          message: %{
-            id: get_in(parsed, ["json", "id"]),
-            type: get_in(parsed, ["json", "type"]),
-            content: get_in(parsed, ["json", "message"]),
-            attachment: get_in(parsed, ["json", "attachment"]),
-            v: v
-          },
-          raw: parsed["json"]
-        }
+        v =
+          case get_in(parsed, ["json", "v"]) |> JSON.decode() do
+            {:ok, parsed_v} -> parsed_v
+            {:error, _reason} -> %{}
+          end
+
+        chat =
+          %{
+            room: %{
+              id: get_in(parsed, ["json", "chat_id"]),
+              name: parsed["room"]
+            },
+            sender: %{
+              id: get_in(parsed, ["json", "user_id"]),
+              name: parsed["sender"]
+            },
+            message: %{
+              id: get_in(parsed, ["json", "id"]),
+              type: get_in(parsed, ["json", "type"]),
+              content: get_in(parsed, ["json", "message"]),
+              attachment: attachment,
+              v: v
+            },
+            raw: parsed["json"]
+          }
 
         extended_chat = extend_chat(chat)
 
-        IrisEx.Bot.Registry.get_bots()
+        IrisEx.Bot.Registry.bots()
         |> Enum.each(fn bot ->
           Task.Supervisor.start_child(
             IrisEx.TaskSupervisor,
-            fn -> get_event_type(v) |> bot.handle_event(extended_chat) end
+            fn -> event_type(v) |> bot.handle_event(extended_chat) end
           )
         end)
 
@@ -119,7 +127,7 @@ defmodule IrisEx.Client do
     end
   end
 
-  defp get_event_type(%{"origin" => origin}) do
+  defp event_type(%{"origin" => origin}) do
     case origin do
       "MSG" -> :message
       "NEWMEM" -> :new_member
@@ -127,16 +135,14 @@ defmodule IrisEx.Client do
       _ -> :unknown
     end
   end
-  defp get_event_type(_), do: :unknown
+  defp event_type(_), do: :unknown
 
   defp extend_chat(chat) do
     IrisEx.Config.extensions()
     |> Enum.reduce(chat, fn extension, extended_chat ->
       case extension do
-        :room_type ->
-          extend_with_room_type(extended_chat)
-        _ ->
-          extended_chat
+        :room_type -> extend_with_room_type(extended_chat)
+        _ -> extended_chat
       end
     end)
   end

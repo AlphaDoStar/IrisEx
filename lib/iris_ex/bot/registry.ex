@@ -20,8 +20,8 @@ defmodule IrisEx.Bot.Registry do
     GenServer.call(__MODULE__, {:register, module})
   end
 
-  def get_bots do
-    GenServer.call(__MODULE__, :get_bots)
+  def bots do
+    GenServer.call(__MODULE__, :bots)
   end
 
   @impl true
@@ -39,7 +39,7 @@ defmodule IrisEx.Bot.Registry do
   end
 
   @impl true
-  def handle_call(:get_bots, _from, bots) do
+  def handle_call(:bots, _from, bots) do
     {:reply, bots, bots}
   end
 end

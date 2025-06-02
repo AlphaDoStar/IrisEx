@@ -8,7 +8,8 @@ defmodule IrisEx.Application do
   def start(_type, _args) do
     children = [
       {Task.Supervisor, name: IrisEx.TaskSupervisor},
-      IrisEx.Bot.Registry
+      IrisEx.Bot.Registry,
+      IrisEx.Bot.Agent
     ]
 
     opts = [strategy: :one_for_one, name: IrisEx.Supervisor]
