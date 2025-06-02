@@ -195,8 +195,8 @@ end
 defmodule MyApp.Application do
   use IrisEx.Application,
     bots: [FruitBot],
-    ws_url: "ws://192.168.0.17:3000/ws",
-    http_url: "http://192.168.0.17:3000",
+    ws_url: "ws://localhost:3000/ws",
+    http_url: "http://localhost:3000",
     children: []
 end
 ```
@@ -214,17 +214,15 @@ end
 
 ### 매크로
 - `on/2` - 이벤트 핸들러 정의
+- `set/1` - 상태 구분 키 지정
+- `state/2` - 상태별 정의
 - `match/2` - 메시지 패턴 매칭
-- `state/2` - 상태 정의
-- `reply/1` - 메시지 응답
 - `trans/1` - 상태 전환
-- `set/1` - 컨텍스트 설정
+- `reply/1` - 메시지 응답
 
 ### 컨텍스트 변수
-- `chat.room.id` - 채팅방 ID
-- `chat.sender.name` - 메시지 보낸이 이름
+- `chat` - 채팅 컨텍스트
 - `args` - 매칭된 정규표현식 그룹
-
-## 라이선스
-
-MIT
+- `match_handled` - 메시지 패턴 매칭 여부
+- `agent_id` - 상태 구분 키
+- `agent_state` - 상태
