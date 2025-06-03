@@ -157,8 +157,13 @@ defmodule FruitBot do
 
     state :default do
       match "선택" do
+        message =
+          """
+          1. 딸기
+          2. 바나나
+          """
         reply("어떤 과일이 좋으신가요?")
-        reply("1. 딸기\n2. 바나나")
+        reply(message, trim: true)  # trim 옵션 제공
         trans :fruit_selection
       end
     end
@@ -176,6 +181,11 @@ defmodule FruitBot do
     end
 
     match "greet" do
+      reply("안녕하세요.")
+      continue()  # 다음 매치로 계속
+    end
+
+    match "greet" do
       reply("반갑습니다.")
     end
 
@@ -184,7 +194,9 @@ defmodule FruitBot do
       reply("#{name} 님, 안녕하세요!")
     end
 
-    # 매칭되지 않은 경우 처리
+    fallback do
+      # 매칭되지 않은 경우 처리
+    end
   end
 
   on :new_member do
@@ -204,7 +216,6 @@ end
 ## 설정 옵션
 
 ### Application 옵션
-
 - `bots` - 실행할 봇 모듈 리스트
 - `ws_url` - WebSocket 서버 주소 (실시간 메시지 수신)
 - `http_url` - HTTP API 서버 주소 (메시지 전송)
@@ -218,11 +229,8 @@ end
 - `state/2` - 상태별 정의
 - `match/2` - 메시지 패턴 매칭
 - `trans/1` - 상태 전환
-- `reply/1` - 메시지 응답
+- `reply/2` - 메시지 응답
 
 ### 컨텍스트 변수
 - `chat` - 채팅 컨텍스트
 - `args` - 매칭된 정규표현식 그룹
-- `match_handled` - 메시지 패턴 매칭 여부
-- `agent_id` - 상태 구분 키
-- `agent_state` - 상태

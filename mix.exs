@@ -4,7 +4,7 @@ defmodule IrisEx.MixProject do
   def project do
     [
       app: :iris_ex,
-      version: "0.3.1",
+      version: "0.3.3",
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
       deps: deps()

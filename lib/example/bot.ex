@@ -26,11 +26,20 @@ defmodule Example.Bot do
 
     match "greet" do
       reply("반갑습니다.")
+      continue()
+    end
+
+    match "greet" do
+      reply("다시 한 번 반갑습니다.")
     end
 
     match ~r/greet (.+)/ do
       [name] = args
       reply("#{name} 님, 안녕하세요!")
+    end
+
+    fallback do
+      # reply("입력한 명령어가 없습니다.")
     end
   end
 
